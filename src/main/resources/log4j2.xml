@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--log4j2 简单配置-->
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %l %msg%n"/>
+        </Console>
+        <!--dao层log-->
+        <File name="queryDaoLog" fileName="${web:rootDir}/WEB-INF/logs/QueryDaoLog.log">
+            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %l %msg%n%n"/>
+        </File>
+        <File name="monitorDaoLog" fileName="${web:rootDir}/WEB-INF/logs/MonitorDaoLog.log">
+            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %l %msg%n%n"/>
+        </File>
+        <!--错误log-->
+        <File name="errLog" fileName="${web:rootDir}/WEB-INF/logs/ErrLog.log">
+            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %l %msg%n%n"/>
+        </File>
+        <!--发送通知记录log-->
+        <File name="notifyLog" fileName="${web:rootDir}/WEB-INF/logs/NotifyLog.log">
+            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %msg%n"/>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <Root level="ERROR">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="errLog"/>
+        </Root>
+        <!--mybatis打印sql到控制台和文件-->
+        <Logger name="cn.jxust.electricBill.dao.QueryDao" level="ERROR" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="queryDaoLog"/>
+        </Logger>
+        <Logger name="cn.jxust.electricBill.dao.MonitorDao" level="ERROR" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="monitorDaoLog"/>
+        </Logger>
+        <!--通知记录-->
+        <Logger name="NotifyLogger" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="notifyLog"/>
+        </Logger>
+    </Loggers>
+</Configuration>
