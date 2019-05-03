@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * 房间信息
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ElectricRoom {
 
     @JsonIgnore
@@ -74,7 +74,7 @@ public class ElectricRoom {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return areaId == 0 || buildId == 0 || floorId == 0 || roomId == 0 || areaName == null || buildName == null || floorName == null || roomName == null || threshold == null || expireTime == null || (phone == null && email == null);
+        return areaId == 0 || buildId == 0 || floorId == 0 || roomId == 0 || areaName == null || buildName == null || floorName == null || roomName == null || threshold == null || expireTime == null || phone == null || email == null;
     }
 
     public int getAreaId() {

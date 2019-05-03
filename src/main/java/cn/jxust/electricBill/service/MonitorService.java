@@ -122,9 +122,9 @@ public class MonitorService {
      * @param room 房间信息
      */
     boolean notify(ElectricRoom room) {
-        if (room.getPhone() != null) {
+        if (room.getPhone() != null && !room.getPhone().equals("")) {
             return sendSms(room);
-        } else if (room.getEmail() != null) {
+        } else if (room.getEmail() != null && !room.getEmail().equals("")) {
             return sendEmail(room);
         } else {
             //如果手机和邮箱都为空,则该记录无效,删除该条记录
