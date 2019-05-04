@@ -54,7 +54,7 @@ public class BillController {
             return new Message(500, "缺少参数!");
         }
         try {
-            List<Map<String, String>> builds = queryService.queryBuildInfo(areaId);
+            Map<String, List<Map<String, String>>> builds = queryService.queryBuildInfo(areaId);
             return new Message(0, builds);
         } catch (Exception e) {
             e.printStackTrace();

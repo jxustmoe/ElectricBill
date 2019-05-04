@@ -224,9 +224,9 @@ public class QueryService {
             }
 
             //获取楼栋信息
-            List<Map<String, String>> buildInfo = queryBuildInfo(currentArea);
+            Map<String, List<Map<String, String>>> buildInfo = queryBuildInfo(currentArea);
             Thread.sleep(300);
-            for (Map<String, String> build : buildInfo) {
+            for (Map<String, String> build : buildInfo.get("buils")) {
                 currentBuild = Integer.parseInt(build.get("buiId"));
                 currentBuildName = build.get("buiName");
 
@@ -282,7 +282,7 @@ public class QueryService {
      * @throws IOException
      * @throws TesseractException
      */
-    public List<Map<String, String>> queryBuildInfo(int schoolArea) throws IOException, TesseractException {
+    public Map<String,List<Map<String, String>>> queryBuildInfo(int schoolArea) throws IOException, TesseractException {
 
         //验证是否登陆
         checkLogin();
@@ -307,7 +307,15 @@ public class QueryService {
         });
         is.close();
 
-        return map.get("buils");
+        //去掉多余的字段
+        map.remove("areas");
+        map.remove("districts");
+        //去除房间号后的空格
+        for (Map<String, String> room : map.get("rooms")) {
+            room.put("roomName",room.get("roomName").trim());
+        }
+
+        return map;
     }
 
     /**

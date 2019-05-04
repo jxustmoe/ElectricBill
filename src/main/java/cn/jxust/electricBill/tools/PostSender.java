@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 /**
  * POST请求发送类
@@ -73,7 +74,12 @@ public class PostSender {
      * @throws IOException
      */
     public InputStream getInputStream() throws IOException {
-        return connection.getInputStream();
+        String encoding = connection.getHeaderField("Content-Encoding");
+        if (encoding != null && encoding.contains("gzip")) {
+            return new GZIPInputStream(connection.getInputStream());
+        } else {
+            return connection.getInputStream();
+        }
     }
 
     /**
@@ -86,6 +92,7 @@ public class PostSender {
         //设置相关请求数据
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+        connection.setRequestProperty("Accept-Encoding", "gzip, deflate");
         connection.setDoInput(true);
         connection.setDoOutput(true);
         connection.setUseCaches(false);
