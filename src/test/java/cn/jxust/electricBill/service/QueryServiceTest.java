@@ -36,7 +36,7 @@ public class QueryServiceTest {
         room.setLastNotifyTime(new Date());
         room.setLastNotifyBalance(150.0);
         room.setPhone("18812345678");
-        Assert.assertEquals(true, service.addRecord(room));
+        Assert.assertTrue(service.addRecord(room));
     }
 
     @Test
@@ -51,12 +51,12 @@ public class QueryServiceTest {
         room.setLastNotifyTime(new Date());
         room.setLastNotifyBalance(10.0);
         room.setPhone("13488888888");
-        Assert.assertEquals(true, service.updateRecord(room));
+        Assert.assertTrue(service.updateRecord(room));
     }
 
     @Test
     public void testDeleteRecord() {
-        Assert.assertEquals(true, service.deleteRecord(1, 15, 192));
+        Assert.assertTrue(service.deleteRecord(1, 15, 192));
     }
 
     @Test
@@ -72,14 +72,14 @@ public class QueryServiceTest {
         long start = System.currentTimeMillis();
         for (int i = 0; i < 10; i++) {
             try {
-                service.queryBuildInfo(areaId);
+//                service.queryBuildInfo(areaId);
 //                Thread.sleep(50);
 //                service.queryFloorInfo(areaId, buildId);
 //                Thread.sleep(50);
 //                service.queryRoomInfo(areaId, buildId, floorId);
 //                Thread.sleep(50);
 //                Thread.sleep(50);
-//                service.queryBill(areaId,buildId,192);
+                service.queryBill(areaId,buildId,192);
                 Thread.sleep(50);
                 System.out.println("ok");
             } catch (IOException | TesseractException | InterruptedException e) {

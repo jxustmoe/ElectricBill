@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 定时查询电费并发送提醒
@@ -84,6 +85,11 @@ public class MonitorService {
                     //更新电费余额
                     room.setBalance(balance);
                     queryService.updateRecord(room);
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             } else {
                 //清除多余的分页请求
@@ -122,9 +128,9 @@ public class MonitorService {
      * @param room 房间信息
      */
     boolean notify(ElectricRoom room) {
-        if (room.getPhone() != null && !room.getPhone().equals("")) {
+        if (room.getPhone() != null && !room.getPhone().isEmpty()) {
             return sendSms(room);
-        } else if (room.getEmail() != null && !room.getEmail().equals("")) {
+        } else if (room.getEmail() != null && !room.getEmail().isEmpty()) {
             return sendEmail(room);
         } else {
             //如果手机和邮箱都为空,则该记录无效,删除该条记录
@@ -140,6 +146,13 @@ public class MonitorService {
      * @return 是否成功
      */
     boolean sendSms(ElectricRoom room) {
+        //验证手机是否合法,不合法就删除,避免疯狂打印错误日志
+        boolean isValid = Pattern.matches("^1[34578]\\d{9}$", room.getPhone());
+        if (!isValid) {
+            queryService.deleteRecord(room.getAreaId(), room.getBuildId(), room.getRoomId());
+            return false;
+        }
+
         try {
             SmsSingleSenderResult result = smsSender.sendWithParam("86", room.getPhone(), config.getTemplateId(), new String[]{room.getBuildName() + room.getRoomName(), String.valueOf(room.getThreshold())}, "", null, null);
             if (result.result == 0) {
@@ -163,9 +176,15 @@ public class MonitorService {
      * @return 是否成功
      */
     boolean sendEmail(ElectricRoom room) {
+        //验证邮箱是否合法,不合法就删除,避免疯狂打印错误日志
+        boolean isValid = Pattern.matches("^[\\w-]+@[\\w-]+\\.(com|cn)$", room.getEmail());
+        if (!isValid) {
+            queryService.deleteRecord(room.getAreaId(), room.getBuildId(), room.getRoomId());
+            return false;
+        }
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+        MimeMessage       message = mailSender.createMimeMessage();
+        MimeMessageHelper helper  = new MimeMessageHelper(message, "UTF-8");
 
         try {
             //收件人
@@ -176,8 +195,9 @@ public class MonitorService {
             helper.setSubject(config.getMailSubject());
 
             //读取邮件模板
-            InputStream is = Resources.getResourceAsStream("MailTemplate.html");
-            String mailText = IOUtils.toString(is, "UTF-8");
+            InputStream is       = Resources.getResourceAsStream("MailTemplate.html");
+            String      mailText = IOUtils.toString(is, "UTF-8");
+            is.close();
 
             //替换变量
             mailText = mailText.replace("${room}", room.getBuildName() + room.getRoomName());

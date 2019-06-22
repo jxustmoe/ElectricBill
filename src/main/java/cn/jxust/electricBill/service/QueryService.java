@@ -8,6 +8,7 @@ import cn.jxust.electricBill.tools.PostSender;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sourceforge.tess4j.TesseractException;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,7 +93,7 @@ public class QueryService {
     private void getCode() throws IOException, TesseractException {
 
         URLConnection con = new URL(config.getCodeUrl()).openConnection();
-        InputStream is = con.getInputStream();
+        InputStream   is  = con.getInputStream();
 
         //获取验证码
         code = Ocr.parse(is);
@@ -179,14 +180,19 @@ public class QueryService {
         //获得响应输入流
         InputStream is = sender.getInputStream();
 
-        //解析JSON
-        Map<String, String> bill = objectMapper.readValue(is, new TypeReference<Map<String, String>>() {
-        });
+        //获取json字符串
+        String json = IOUtils.toString(is, "utf-8");
+
+        //关流
         is.close();
+
+        //解析JSON
+        Map<String, String> bill = objectMapper.readValue(json, new TypeReference<Map<String, String>>() {
+        });
 
         if (!bill.get("retcode").equals("0")) {
             //调用一卡通api查询失败时
-            throw new IOException("query fail!");
+            throw new IOException("ecard system error! query fail!");
         }
 
         //结果保留两位小数
@@ -201,11 +207,11 @@ public class QueryService {
      */
     @Deprecated
     public List<Map<String, String>> queryAllInfo() throws IOException, TesseractException, InterruptedException {
-        int currentArea;
+        int    currentArea;
         String currentAreaName;
-        int currentBuild;
+        int    currentBuild;
         String currentBuildName;
-        int currentFloor;
+        int    currentFloor;
         String currentFloorName;
 
         List<Map<String, String>> roomList = new ArrayList<>();
@@ -241,8 +247,8 @@ public class QueryService {
                     List<Map<String, String>> rooms = queryRoomInfo(currentArea, currentBuild, currentFloor);
                     Thread.sleep(300);
                     for (Map<String, String> roomTmp : rooms) {
-                        int currentRoom = Integer.parseInt(roomTmp.get("roomId"));
-                        double balance = queryBill(currentArea, currentBuild, currentRoom);
+                        int    currentRoom = Integer.parseInt(roomTmp.get("roomId"));
+                        double balance     = queryBill(currentArea, currentBuild, currentRoom);
                         Thread.sleep(50);
 
                         ElectricRoom room = new ElectricRoom();
@@ -282,7 +288,7 @@ public class QueryService {
      * @throws IOException
      * @throws TesseractException
      */
-    public Map<String,List<Map<String, String>>> queryBuildInfo(int schoolArea) throws IOException, TesseractException {
+    public Map<String, List<Map<String, String>>> queryBuildInfo(int schoolArea) throws IOException, TesseractException {
 
         //验证是否登陆
         checkLogin();
@@ -312,7 +318,7 @@ public class QueryService {
         map.remove("districts");
         //去除房间号后的空格
         for (Map<String, String> room : map.get("rooms")) {
-            room.put("roomName",room.get("roomName").trim());
+            room.put("roomName", room.get("roomName").trim());
         }
 
         return map;
