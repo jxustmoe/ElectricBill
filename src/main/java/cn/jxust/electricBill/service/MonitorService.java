@@ -114,6 +114,14 @@ public class MonitorService {
                         //更新最后通知时间
                         room.setLastNotifyTime(new Date());
                         queryService.updateRecord(room);
+                    } else {
+                        //若发送失败,则推迟发送时间
+                        monitorDao.delayNotifyTime(room.getAreaId(), room.getBuildId(), room.getRoomId());
+                    }
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             } else {
